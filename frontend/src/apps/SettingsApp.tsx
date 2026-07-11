@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Key, CheckCircle, XCircle, Loader, Cpu, Sliders, ShieldCheck, Bell, RefreshCw, Trash2, Store, Tag, PlusCircle, X } from 'lucide-react';
 import { getStoredApiKey, setStoredApiKey, getStoredModel, setStoredModel, testApiKey, type GeminiModel } from '../services/geminiService';
 import type { UserProfile } from '../components/LoginScreen';
+import { supabaseGetCategories, supabaseAddCategory, supabaseDeleteCategory } from '../services/supabaseService';
 
 interface SettingsAppProps {
   controlSettings: {
@@ -33,10 +34,6 @@ export function getStoredCategories(): string[] {
   } catch { return DEFAULT_CATEGORIES; }
 }
 
-function saveCategories(cats: string[]) {
-  localStorage.setItem('agentbay_categories', JSON.stringify(cats));
-}
-
 export const SettingsApp: React.FC<SettingsAppProps> = ({
   controlSettings,
   onUpdateSettings,
@@ -49,8 +46,25 @@ export const SettingsApp: React.FC<SettingsAppProps> = ({
   const [keyStatus, setKeyStatus] = useState<'idle' | 'testing' | 'ok' | 'fail'>('idle');
   const [localSettings, setLocalSettings] = useState({ ...controlSettings });
   const [dirty, setDirty] = useState(false);
-  const [categories, setCategories] = useState<string[]>(getStoredCategories);
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
   const [newCat, setNewCat] = useState('');
+
+  const loadDBCategories = async () => {
+    try {
+      const dbCats = await supabaseGetCategories();
+      if (dbCats.length > 0) {
+        setCategories(dbCats);
+        // Cache to localStorage for fast lookup in offline parts
+        localStorage.setItem('agentbay_categories', JSON.stringify(dbCats));
+      }
+    } catch (e) {
+      console.error('Failed to load DB categories:', e);
+    }
+  };
+
+  useEffect(() => {
+    loadDBCategories();
+  }, []);
 
   useEffect(() => {
     setLocalSettings({ ...controlSettings });
@@ -321,11 +335,14 @@ export const SettingsApp: React.FC<SettingsAppProps> = ({
                     <span className="font-semibold text-gray-800">{cat}</span>
                     {!DEFAULT_CATEGORIES.includes(cat) && (
                       <button
-                        onClick={() => {
-                          const next = categories.filter(c => c !== cat);
-                          setCategories(next);
-                          saveCategories(next);
-                          onShowNotification('Categories', `Removed category: ${cat}`, 'info');
+                        onClick={async () => {
+                          try {
+                            await supabaseDeleteCategory(cat);
+                            onShowNotification('Categories', `Removed category: ${cat}`, 'info');
+                            loadDBCategories();
+                          } catch (e: any) {
+                            onShowNotification('Categories', `Delete failed: ${e.message}`, 'warning');
+                          }
                         }}
                         className="text-red-500 hover:text-red-700"
                         title="Delete category"
@@ -351,14 +368,17 @@ export const SettingsApp: React.FC<SettingsAppProps> = ({
                   }}
                 />
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const trimmed = newCat.trim();
                     if (!trimmed || categories.includes(trimmed)) return;
-                    const next = [...categories, trimmed];
-                    setCategories(next);
-                    saveCategories(next);
-                    setNewCat('');
-                    onShowNotification('Categories', `Added category: ${trimmed}`, 'success');
+                    try {
+                      await supabaseAddCategory(trimmed);
+                      setNewCat('');
+                      onShowNotification('Categories', `Added category: ${trimmed}`, 'success');
+                      loadDBCategories();
+                    } catch (e: any) {
+                      onShowNotification('Categories', `Add failed: ${e.message}`, 'warning');
+                    }
                   }}
                   className="xp-btn px-3 py-1.5 flex items-center gap-1 font-bold text-green-700 border-green-500 bg-[#e8ffe8]"
                 >

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Plus, Eye, EyeOff, Lock } from 'lucide-react';
 import { playErrorSound } from '../services/soundService';
+import { supabaseSignIn, supabaseSignUp } from '../services/supabaseService';
 
 export type UserRole = 'buyer' | 'seller' | 'admin';
 
@@ -11,7 +12,7 @@ export interface UserProfile {
   avatar: string;
   createdAt: string;
   balance: number;
-  pwHash: string; // simple hash of password
+  pwHash: string;
 }
 
 interface LoginScreenProps {
@@ -20,56 +21,22 @@ interface LoginScreenProps {
 
 const AVATARS = ['👤', '🤖', '🛒', '🏪', '🧑‍💼', '👩‍💼', '🦾', '🧠', '💼', '🌐'];
 
-
-
-// Each browser tab/device gets its own storage key — users only see accounts they created here
-const DEVICE_KEY = (() => {
-  let k = localStorage.getItem('agentbay_device_id');
-  if (!k) {
-    k = 'dev_' + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem('agentbay_device_id', k);
-  }
-  return k;
-})();
-
-const STORAGE_KEY = `agentbay_users_${DEVICE_KEY}`;
-
-// Simple deterministic hash (not secure, but prevents plaintext storage)
-function simpleHash(s: string): string {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-  }
-  return h.toString(16);
-}
-
-function loadUsers(): UserProfile[] {
+export function getStoredUser(): UserProfile | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    let list: UserProfile[] = raw ? JSON.parse(raw) : [];
-    if (!list.some(u => u.name.toLowerCase() === 'admin')) {
-      list.push({
-        id: 'user_admin',
-        name: 'admin',
-        role: 'admin',
-        avatar: '🧠',
-        createdAt: new Date().toISOString(),
-        balance: 99999999,
-        pwHash: simpleHash('admin'),
-      });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-    }
-    return list;
-  } catch {}
-  return [];
+    const raw = localStorage.getItem('agentbay_current_user');
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
 }
 
-function saveUsers(users: UserProfile[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+export function storeCurrentUser(user: UserProfile | null): void {
+  if (user) {
+    localStorage.setItem('agentbay_current_user', JSON.stringify(user));
+  } else {
+    localStorage.removeItem('agentbay_current_user');
+  }
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
-  const [users, setUsers] = useState<UserProfile[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [newRole, setNewRole] = useState<UserRole>('buyer');
@@ -84,61 +51,43 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [createError, setCreateError] = useState('');
   const [creating, setCreating] = useState(false);
 
-  useEffect(() => {
-    setUsers(loadUsers());
-  }, []);
-
-  const handleCreateUser = () => {
+  const handleCreateUser = async () => {
     if (!newName.trim()) { setCreateError('Name is required.'); playErrorSound(); return; }
     if (!newPassword) { setCreateError('Password is required.'); playErrorSound(); return; }
-    if (newPassword.length < 4) { setCreateError('Password must be at least 4 characters.'); playErrorSound(); return; }
+    if (newPassword.length < 6) { setCreateError('Password must be at least 6 characters.'); playErrorSound(); return; }
     if (newPassword !== newPasswordConfirm) { setCreateError('Passwords do not match.'); playErrorSound(); return; }
 
-    // Check if user already exists
-    if (users.some(u => u.name.toLowerCase() === newName.trim().toLowerCase())) {
-      setCreateError('An account with this name already exists.');
-      playErrorSound();
-      return;
-    }
-
     setCreating(true);
-    const profile: UserProfile = {
-      id: `user_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-      name: newName.trim(),
-      role: newRole,
-      avatar: newAvatar,
-      createdAt: new Date().toISOString(),
-      balance: newRole === 'seller' ? 0 : newRole === 'admin' ? 99999999 : 250000,
-      pwHash: simpleHash(newPassword),
-    };
-    const updated = [...users, profile];
-    saveUsers(updated);
-    setUsers(updated);
-    setShowCreate(false);
-    setNewName('');
-    setNewPassword('');
-    setNewPasswordConfirm('');
-    setCreating(false);
-    onLogin(profile);
+    setCreateError('');
+    try {
+      const profile = await supabaseSignUp(newName.trim(), newRole, newAvatar, newPassword);
+      setShowCreate(false);
+      setNewName('');
+      setNewPassword('');
+      setNewPasswordConfirm('');
+      onLogin(profile);
+    } catch (err: any) {
+      setCreateError(err.message || 'Error signing up. Username might be taken.');
+      playErrorSound();
+    } finally {
+      setCreating(false);
+    }
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!loginName.trim()) { setPwError('Username is required.'); playErrorSound(); return; }
     if (!password) { setPwError('Password is required.'); playErrorSound(); return; }
     
-    const matched = users.find(u => u.name.toLowerCase() === loginName.trim().toLowerCase());
-    if (!matched) {
-      setPwError('Account not found. Click "New Account" to register.');
+    setCreating(true);
+    setPwError('');
+    try {
+      const profile = await supabaseSignIn(loginName.trim(), password);
+      onLogin(profile);
+    } catch (err: any) {
+      setPwError(err.message || 'Login failed. Check your password or try registering.');
       playErrorSound();
-      return;
-    }
-    
-    const expected = matched.pwHash;
-    if (simpleHash(password) === expected) {
-      onLogin(matched);
-    } else {
-      setPwError('Incorrect password. Please try again.');
-      playErrorSound();
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -385,18 +334,3 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   );
 };
 
-export function getStoredUser(): UserProfile | null {
-  try {
-    const raw = localStorage.getItem('agentbay_current_user');
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return null;
-}
-
-export function storeCurrentUser(user: UserProfile | null): void {
-  if (user) {
-    localStorage.setItem('agentbay_current_user', JSON.stringify(user));
-  } else {
-    localStorage.removeItem('agentbay_current_user');
-  }
-}

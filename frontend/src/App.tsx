@@ -24,6 +24,10 @@ import { SettingsApp } from './apps/SettingsApp';
 import { AgentNewsApp } from './apps/AgentNewsApp';
 import { HelpApp } from './apps/HelpApp';
 import { AboutApp } from './apps/AboutApp';
+import {
+  supabaseGetProducts, supabaseAddProduct, supabaseDeleteProduct,
+  supabaseGetTransactions, supabaseAddTransaction, supabaseSignOut
+} from './services/supabaseService';
 
 // ── Window Defaults ───────────────────────────────────────────────
 const DEFAULT_WINDOWS: WindowState[] = [
@@ -96,22 +100,13 @@ export const App: React.FC = () => {
   });
 
   // Products list state
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      const stored = localStorage.getItem('agentbay_products');
-      return stored ? JSON.parse(stored) : mockProducts;
-    } catch {
-      return mockProducts;
-    }
-  });
+  const [products, setProducts] = useState<Product[]>(mockProducts);
 
   // Notifications
   const [notifications, setNotifications] = useState<{ id: string; title: string; message: string; type: 'info' | 'warning' | 'success' }[]>([]);
 
   // Commerce state
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    try { return JSON.parse(localStorage.getItem('agentbay_transactions') || '[]'); } catch { return []; }
-  });
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedReceipt, setSelectedReceipt] = useState<Transaction | null>(null);
 
   // Messenger state
@@ -123,6 +118,25 @@ export const App: React.FC = () => {
 
   // Agent prompt linking
   const [shoppingAgentPrompt, setShoppingAgentPrompt] = useState('');
+
+  // ── Sync with Supabase ──
+  const syncData = useCallback(async (user: UserProfile) => {
+    try {
+      const dbProds = await supabaseGetProducts();
+      if (dbProds.length > 0) setProducts(dbProds);
+      
+      const dbTx = await supabaseGetTransactions(user.id, user.role);
+      setTransactions(dbTx);
+    } catch (e) {
+      console.error('Database sync failed:', e);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (currentUser) {
+      syncData(currentUser);
+    }
+  }, [currentUser, syncData]);
 
   // ── Window Ops ──
   const handleOpenApp = useCallback((appId: AppId) => {
@@ -199,22 +213,27 @@ export const App: React.FC = () => {
     setTypingState(typing);
   }, []);
 
-  const handleFinishNegotiation = useCallback((tx: Transaction) => {
-    setTransactions(prev => {
-      const updated = [tx, ...prev];
-      localStorage.setItem('agentbay_transactions', JSON.stringify(updated));
-      return updated;
-    });
+  const handleFinishNegotiation = useCallback(async (tx: Transaction) => {
     setSelectedReceipt(tx);
     setIsNegotiating(false);
     setTypingState('idle');
+    
     // Play sound based on whether deal was made (savings > 0 means success)
     if (tx.savings >= 0 && tx.finalPrice > 0) {
       playSuccessSound();
     } else {
       playErrorSound();
     }
-  }, []);
+
+    if (currentUser) {
+      try {
+        await supabaseAddTransaction(tx, currentUser.id);
+        syncData(currentUser);
+      } catch (e: any) {
+        triggerNotification('System Ledger', `Transaction backup failed: ${e.message}`, 'warning');
+      }
+    }
+  }, [currentUser, syncData, triggerNotification]);
 
   const handleSendHumanMessage = useCallback((text: string) => {
     const msg: Message = {
@@ -237,23 +256,27 @@ export const App: React.FC = () => {
     playNudgeSound();
   }, [triggerNotification]);
 
-  const handleAddProduct = useCallback((prod: Product) => {
-    setProducts(prev => {
-      const next = [prod, ...prev];
-      localStorage.setItem('agentbay_products', JSON.stringify(next));
-      return next;
-    });
-    triggerNotification('Marketplace.exe', `New listing published: ${prod.name}`, 'success');
-  }, [triggerNotification]);
+  const handleAddProduct = useCallback(async (prod: Product) => {
+    if (currentUser) {
+      try {
+        await supabaseAddProduct(prod, currentUser.id);
+        triggerNotification('Marketplace.exe', `New listing published: ${prod.name}`, 'success');
+        syncData(currentUser);
+      } catch (e: any) {
+        triggerNotification('Marketplace.exe', `Listing upload failed: ${e.message}`, 'warning');
+      }
+    }
+  }, [currentUser, syncData, triggerNotification]);
 
-  const handleDeleteProduct = useCallback((prodId: string) => {
-    setProducts(prev => {
-      const next = prev.filter(p => p.id !== prodId);
-      localStorage.setItem('agentbay_products', JSON.stringify(next));
-      return next;
-    });
-    triggerNotification('Marketplace.exe', 'Product listing deleted successfully.', 'info');
-  }, [triggerNotification]);
+  const handleDeleteProduct = useCallback(async (prodId: string) => {
+    try {
+      await supabaseDeleteProduct(prodId);
+      triggerNotification('Marketplace.exe', 'Product listing deleted successfully.', 'info');
+      if (currentUser) syncData(currentUser);
+    } catch (e: any) {
+      triggerNotification('Marketplace.exe', `Delete failed: ${e.message}`, 'warning');
+    }
+  }, [currentUser, syncData, triggerNotification]);
 
   // ── Auth ──
   const handleLogin = useCallback((user: UserProfile) => {
@@ -268,7 +291,8 @@ export const App: React.FC = () => {
 
   const handleLogout = useCallback(() => {
     playLogoutSound();
-    setTimeout(() => {
+    setTimeout(async () => {
+      await supabaseSignOut();
       setCurrentUser(null);
       storeCurrentUser(null);
       setWindows(DEFAULT_WINDOWS);
