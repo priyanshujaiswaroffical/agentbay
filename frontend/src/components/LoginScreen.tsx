@@ -291,19 +291,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                       </div>
                     </div>
                   </button>
-                  <button onClick={() => setNewRole('admin')}
-                    type="button"
-                    className={`w-full flex items-center gap-3 p-2.5 rounded border text-xs text-left transition-all ${
-                      newRole === 'admin' ? 'bg-[#b02008] text-white border-[#801000]' : 'bg-white border-gray-300 hover:border-gray-400'
-                    }`}>
-                    <span className="text-2xl">🧠</span>
-                    <div>
-                      <div className="font-bold text-sm">Administrator</div>
-                      <div className={`text-[10px] ${newRole === 'admin' ? 'text-red-200' : 'text-gray-500'}`}>
-                        Full system access. Manage configurations and listings.
-                      </div>
-                    </div>
-                  </button>
                 </div>
               </div>
 

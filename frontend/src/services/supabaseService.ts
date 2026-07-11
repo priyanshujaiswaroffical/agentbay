@@ -58,26 +58,31 @@ export async function supabaseSignUp(name: string, role: UserRole, avatar: strin
   return profile;
 }
 
+// Internal password for admin (Supabase requires 6+ chars; user just types "admin")
+const ADMIN_INTERNAL_PW = "AgentBay_Admin!";
+
 export async function supabaseSignIn(name: string, pw: string): Promise<UserProfile> {
+  const isAdmin = name.toLowerCase() === "admin" && pw === "admin";
   const email = `${name.toLowerCase().replace(/\s+/g, "")}@agentbay.com`;
+  const password = isAdmin ? ADMIN_INTERNAL_PW : pw;
 
   // Sign in using Auth
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email,
-    password: pw,
+    password,
   });
 
   if (authError) {
-    // If admin doesn't exist yet, seed it on first login attempt
-    if (name.toLowerCase() === "admin") {
+    // If admin doesn't exist yet, auto-create it on first login
+    if (isAdmin) {
       try {
-        const seededAdmin = await supabaseSignUp("admin", "admin", "👤", "admin");
+        const seededAdmin = await supabaseSignUp("admin", ADMIN_INTERNAL_PW, "🧠", "admin");
         return seededAdmin;
       } catch (seedErr) {
-        throw new Error(authError.message);
+        throw new Error("Failed to create admin account. Check Supabase settings.");
       }
     }
-    throw new Error(authError.message);
+    throw new Error("Invalid login credentials");
   }
 
   if (!authData.user) throw new Error("Sign in failed");
