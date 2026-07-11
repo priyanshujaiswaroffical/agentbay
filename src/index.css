@@ -1,0 +1,422 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Tahoma', 'Verdana', 'Segoe UI', sans-serif;
+    background-color: #000;
+    color: #000;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-left: 1px solid #dcdcdc;
+  box-shadow: inset 1px 0 0 #dfdfdf, inset -1px 0 0 #eaeaea;
+}
+::-webkit-scrollbar-thumb {
+  background: #eaeaea;
+  border: 1px solid #c0c0c0;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #b0b0b0;
+}
+::-webkit-scrollbar-thumb:hover { background: #dfdfdf; }
+::-webkit-scrollbar-button {
+  display: block; height: 16px; width: 16px;
+  background: #eaeaea;
+  border: 1px solid #c0c0c0;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #b0b0b0;
+}
+
+/* Windows XP Window */
+.xp-window {
+  border: 3px solid #0054e3;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 1px 1px 0 rgba(255,255,255,0.3);
+  background-color: #ECE9D8;
+}
+
+/* XP Blue Titlebar */
+.xp-titlebar {
+  background: linear-gradient(to bottom, #0058e6 0%, #248bf2 9%, #0058e6 18%, #0054e3 54%, #0047cc 92%, #003db3 100%);
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  font-family: 'Tahoma', sans-serif;
+  font-weight: bold;
+}
+
+/* Window Control Buttons */
+.xp-titlebar-btn {
+  width: 21px; height: 21px;
+  border: 1px solid #ffffff;
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: bold;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.4), 0 1px 1px rgba(0,0,0,0.2);
+  transition: filter 0.1s;
+}
+.xp-titlebar-btn:hover { filter: brightness(1.2); }
+.xp-titlebar-btn-close {
+  background: linear-gradient(to bottom, #f37c5f 0%, #e0431f 10%, #d82b0e 20%, #bf1900 80%, #9f0e00 100%);
+  border-color: #b02008;
+}
+.xp-titlebar-btn-close:hover {
+  background: linear-gradient(to bottom, #ff9478 0%, #f05430 10%, #e83b1a 20%, #d02000 80%, #b01000 100%);
+}
+.xp-titlebar-btn-max {
+  background: linear-gradient(to bottom, #77a2f5 0%, #4578e3 10%, #2b5bc7 20%, #173d9e 80%, #0d287d 100%);
+  border-color: #12378f;
+}
+.xp-titlebar-btn-min {
+  background: linear-gradient(to bottom, #77a2f5 0%, #4578e3 10%, #2b5bc7 20%, #173d9e 80%, #0d287d 100%);
+  border-color: #12378f;
+}
+
+/* Classic XP Button */
+.xp-btn {
+  background: linear-gradient(to bottom, #fefefe 0%, #f2f0e6 4%, #ece9d8 14%, #e2ddc8 50%, #dcd6bc 86%, #cfc7a9 100%);
+  border: 1px solid #003c74;
+  border-radius: 3px;
+  color: #000;
+  box-shadow: inset 1px 1px 0 #fff;
+  transition: all 0.1s;
+}
+.xp-btn:hover {
+  background: linear-gradient(to bottom, #faf7ec 0%, #f6f3e5 4%, #edd1ad 14%, #e5b882 50%, #e0a35b 86%, #d88f36 100%);
+  border-color: #003c74;
+  box-shadow: inset 1px 1px 0 #fff;
+}
+.xp-btn:active {
+  background: linear-gradient(to bottom, #cdcbbe 0%, #dcdad0 4%, #d1cfc5 14%, #c7c5b9 50%, #bebdb1 86%, #b5b4a7 100%);
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+}
+.xp-btn:disabled { color: #888; border-color: #a0a0a0; background: #f5f5f5; box-shadow: none; }
+
+/* Start Button */
+.xp-start-btn {
+  background: linear-gradient(to bottom, #3cc03c 0%, #5cb85c 9%, #3ea83e 18%, #328c32 54%, #287428 92%, #226422 100%);
+  border-radius: 0 10px 10px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3), inset 1px 1px 1px rgba(255,255,255,0.4);
+  font-family: 'Trebuchet MS', 'Tahoma', sans-serif;
+  font-style: italic; font-weight: bold;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.6);
+}
+.xp-start-btn:hover {
+  background: linear-gradient(to bottom, #44d444 0%, #6ce46c 9%, #46bd46 18%, #39a639 54%, #2da42d 92%, #248424 100%);
+}
+
+/* Taskbar */
+.xp-taskbar {
+  background: linear-gradient(to bottom, #245edb 0%, #3f8cf3 9%, #245edb 18%, #1b52ca 54%, #083ca9 92%, #06359e 100%);
+  box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+}
+
+/* Taskbar Buttons */
+.xp-taskbar-btn {
+  background: linear-gradient(to bottom, #387cf4 0%, #205cce 10%, #1240a4 25%, #184cc4 85%, #2464e4 100%);
+  border: 1px solid #082c7c;
+  box-shadow: inset 1px 1px 0 rgba(255,255,255,0.2), 1px 1px 1px rgba(0,0,0,0.2);
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.4);
+}
+.xp-taskbar-btn.active {
+  background: linear-gradient(to bottom, #0d2c70 0%, #153c8c 10%, #1e52b2 25%, #153e94 85%, #0e2e74 100%);
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.6);
+}
+.xp-taskbar-btn:hover:not(.active) {
+  background: linear-gradient(to bottom, #5494ff 0%, #3474ea 10%, #1c52cc 25%, #2464dc 85%, #347cf0 100%);
+}
+
+/* Classic Input */
+.xp-input {
+  background-color: #fff;
+  border-top: 2px solid #716f64;
+  border-left: 2px solid #716f64;
+  border-right: 1px solid #f1efe7;
+  border-bottom: 1px solid #f1efe7;
+  padding: 3px 6px;
+  font-family: 'Tahoma', sans-serif;
+  color: #000;
+}
+.xp-input:focus { outline: 1px solid #003c74; }
+
+/* Security Shield Icons */
+.xp-shield-green {
+  background: radial-gradient(circle, #85e085 0%, #2eb82e 70%, #1f7a1f 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.xp-shield-red {
+  background: radial-gradient(circle, #ff8080 0%, #ff1a1a 70%, #b30000 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ====================================================
+   FRUTIGER AERO — FLOATING DESKTOP BUBBLE SYSTEM
+   ==================================================== */
+
+/* Existing aero-bubble (kept for window frames) */
+.aero-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%),
+    radial-gradient(circle at 70% 70%, rgba(30,144,255,0.2) 0%, rgba(30,144,255,0.05) 100%);
+  box-shadow:
+    inset -2px -2px 6px rgba(255,255,255,0.3),
+    inset 2px 2px 6px rgba(0,0,0,0.1),
+    0 4px 10px rgba(30,144,255,0.1);
+  pointer-events: none;
+}/* Main diagonal float animation for desktop bubbles */
+@keyframes floatUp {
+  0%   { transform: translateY(0)   translateX(0)    scale(0.85) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.9; }
+  50%  { transform: translateY(-45vh) translateX(20vw)  scale(1.08) rotate(180deg); opacity: 0.7; }
+  85%  { opacity: 0.3; }
+  100% { transform: translateY(-110vh) translateX(45vw) scale(0.95) rotate(360deg); opacity: 0; }
+}
+
+/* Secondary slow oscillation */
+@keyframes windDrift {
+  0%   { transform: translateX(0)   translateY(0)   rotate(0deg); }
+  25%  { transform: translateX(25px)  translateY(-10px) rotate(3deg); }
+  50%  { transform: translateX(8px)  translateY(-20px) rotate(-1deg); }
+  75%  { transform: translateX(-15px) translateY(-10px) rotate(4deg); }
+  100% { transform: translateX(0)   translateY(0)   rotate(0deg); }
+}
+
+/* Light refraction shimmer on bubble surface */
+@keyframes surfaceShimmer {
+  0%   { background-position: -250% center; opacity: 0.6; }
+  50%  { background-position: 0% center;    opacity: 1;   }
+  100% { background-position: 250% center;  opacity: 0.6; }
+}
+
+/* Gentle size breathing */
+@keyframes bubblePulse {
+  0%, 100% { transform: scale(1);    box-shadow: 0 0 12px rgba(100,180,255,0.2); }
+  50%       { transform: scale(1.07); box-shadow: 0 0 28px rgba(100,180,255,0.5); }
+}
+
+/* Diagonal wind streaks that blow from bottom-left to top-right */
+@keyframes windStreak {
+  0%   { transform: translate(-200px, 150px) rotate(-15deg) scaleX(0.4); opacity: 0; }
+  15%  { opacity: 0.6; }
+  85%  { opacity: 0.3; }
+  100% { transform: translate(calc(100vw + 200px), -150px) rotate(-15deg) scaleX(1.3); opacity: 0; }
+}
+
+/* Glowing ring pulse */
+@keyframes ringPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(150,210,255,0.5); }
+  70%  { box-shadow: 0 0 0 15px rgba(150,210,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(150,210,255,0); }
+}
+
+/* Rotating background grid animation for login */
+@keyframes loginGridRotate {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+.login-grid-anim {
+  background-image: 
+    linear-gradient(rgba(0, 255, 128, 0.08) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(0, 255, 128, 0.08) 1.5px, transparent 1.5px);
+  background-size: 40px 40px;
+  background-position: center center;
+  animation: loginGridRotate 40s linear infinite;
+  opacity: 0.75;
+}
+
+/* Desktop Bubble Component */
+.desktop-bubble {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: floatUp linear infinite;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 70%),
+    radial-gradient(circle at 70% 70%, rgba(0, 180, 255, 0.35) 0%, rgba(0, 50, 150, 0.1) 50%, transparent 80%),
+    radial-gradient(circle at 50% 50%, rgba(200, 240, 255, 0.15) 0%, transparent 60%);
+  box-shadow:
+    inset -5px -5px 12px rgba(255, 255, 255, 0.4),
+    inset 5px 5px 12px rgba(0, 40, 120, 0.15),
+    0 12px 30px rgba(0, 80, 200, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Wind streak lines that glow and sweep across the desktop */
+.wind-streak {
+  position: absolute;
+  height: 3px;
+  border-radius: 50px;
+  pointer-events: none;
+  animation: windStreak linear infinite;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(100, 220, 255, 0.4) 30%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(100, 220, 255, 0.4) 70%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 8px rgba(100, 220, 255, 0.5),
+    0 0 16px rgba(100, 220, 255, 0.2);
+}
+
+/* XP Loading Bar */
+.xp-loader {
+  display: flex;
+  background-color: #fff;
+  border: 1px solid #808080;
+  padding: 1px;
+  width: 100%;
+  height: 12px;
+}
+.xp-loader-bar { display: flex; gap: 2px; width: 100%; }
+.xp-loader-block {
+  width: 8px; height: 8px;
+  background: linear-gradient(to bottom, #60c860 0%, #30a030 50%, #208020 100%);
+  animation: xpPulse 2s infinite ease-in-out;
+}
+@keyframes xpPulse {
+  0%, 100% { opacity: 0.2; }
+  50%       { opacity: 1; }
+}
+
+/* MSN Nudge */
+@keyframes MSNnudge {
+  0%   { transform: translate(0,0); }
+  10%  { transform: translate(-4px,-2px) rotate(-1deg); }
+  20%  { transform: translate(3px,4px)  rotate(1deg); }
+  30%  { transform: translate(-4px,2px) rotate(0deg); }
+  40%  { transform: translate(3px,-3px) rotate(-1deg); }
+  50%  { transform: translate(-2px,4px) rotate(1deg); }
+  60%  { transform: translate(4px,2px)  rotate(-1deg); }
+  70%  { transform: translate(-3px,-4px) rotate(0deg); }
+  80%  { transform: translate(2px,3px)  rotate(1deg); }
+  90%  { transform: translate(-3px,2px) rotate(-1deg); }
+  100% { transform: translate(0,0); }
+}
+.msn-nudge { animation: MSNnudge 0.5s ease-in-out; }
+
+/* IE6 Classic Panel */
+.ie6-navbar {
+  background-color: #f1efe7;
+  border-bottom: 1px solid #d3d3d3;
+  font-family: 'Tahoma', sans-serif;
+  font-size: 11px;
+}
+.ie6-address-bar {
+  background-color: #fff;
+  border: 1px solid #7f9db9;
+  font-family: 'Tahoma', sans-serif;
+  font-size: 12px;
+}
+.ie6-btn {
+  display: flex; align-items: center; gap: 3px;
+  padding: 2px 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.ie6-btn:hover {
+  background-color: #fff;
+  border: 1px solid #b5b5b5;
+  box-shadow: inset 1px 1px 1px #fff;
+}
+
+/* Marquee */
+@keyframes marquee {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.animate-marquee { animation: marquee 20s linear infinite; }
+
+/* Login screen animation */
+@keyframes loginAppear {
+  0%   { opacity: 0; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.login-appear { animation: loginAppear 0.45s ease-out forwards; }
+
+/* Shutdown screen */
+@keyframes shutdownFade {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+.shutdown-overlay { animation: shutdownFade 3s ease-in-out forwards; }
+
+/* Selected desktop icon */
+.desktop-icon-selected {
+  background: rgba(49,106,197,0.5) !important;
+  border-color: rgba(200,220,255,0.8) !important;
+  outline: 1px dotted rgba(255,255,255,0.8);
+}
+
+/* Typing indicator dots */
+@keyframes typingDot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%           { transform: scale(1);   opacity: 1;   }
+}
+.typing-dot { animation: typingDot 1.4s infinite ease-in-out; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Cursor ripple glow */
+@keyframes rippleFade {
+  0%   { transform: scale(0.3); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0;   }
+}
+
+/* Desktop icon hover tooltip pop */
+@keyframes tooltipPop {
+  0%   { transform: translateX(-50%) scale(0.7); opacity: 0; }
+  100% { transform: translateX(-50%) scale(1);   opacity: 1; }
+}
+
+/* ── Print: only show the receipt ─────────────────────────────────── */
+@media print {
+  /* Hide everything on the page */
+  body > * { display: none !important; }
+
+  /* Show only the react root */
+  body > #root { display: block !important; }
+
+  /* Hide the desktop, taskbar, start menu and ALL windows EXCEPT the receipt */
+  #root > * { display: none !important; }
+
+  /* The receipt window — identified by the data-print-receipt attribute we add */
+  [data-print-receipt] { display: block !important; }
+
+  /* Inside the receipt window: hide the titlebar and toolbar, only show the receipt body */
+  [data-print-receipt] [data-print-hide] { display: none !important; }
+
+  /* Reset box model for clean print */
+  [data-print-receipt] {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    z-index: 99999 !important;
+  }
+
+  @page {
+    margin: 10mm;
+    size: A5 portrait;
+  }
+}
+
