@@ -123,11 +123,13 @@ export const App: React.FC = () => {
     try {
       let dbProds = await supabaseGetProducts();
       
-      // If Supabase is empty, seed mock products so they get proper UUIDs
-      if (dbProds.length === 0) {
+      // Only seed mock products on the very first run ever (flag not set yet)
+      const alreadySeeded = localStorage.getItem('agentbay_seeded');
+      if (dbProds.length === 0 && !alreadySeeded) {
         for (const p of mockProducts) {
           try { await supabaseAddProduct(p, user.id); } catch {}
         }
+        localStorage.setItem('agentbay_seeded', 'true');
         dbProds = await supabaseGetProducts();
       }
       
