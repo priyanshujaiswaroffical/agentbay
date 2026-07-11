@@ -386,37 +386,62 @@
 
 /* ── Print: only show the receipt ─────────────────────────────────── */
 @media print {
-  /* Hide everything on the page */
-  body > * { display: none !important; }
+  /* Hide all root children */
+  body > * {
+    display: none !important;
+  }
 
-  /* Show only the react root */
-  body > #root { display: block !important; }
-
-  /* Hide the desktop, taskbar, start menu and ALL windows EXCEPT the receipt */
-  #root > * { display: none !important; }
-
-  /* The receipt window — identified by the data-print-receipt attribute we add */
-  [data-print-receipt] { display: block !important; }
-
-  /* Inside the receipt window: hide the titlebar and toolbar, only show the receipt body */
-  [data-print-receipt] [data-print-hide] { display: none !important; }
-
-  /* Reset box model for clean print */
-  [data-print-receipt] {
-    position: fixed !important;
-    inset: 0 !important;
-    width: 100vw !important;
-    height: auto !important;
-    overflow: visible !important;
+  /* Force display the root container containing receipt */
+  body > #root {
+    display: block !important;
     background: white !important;
-    border: none !important;
+  }
+
+  /* Hide all siblings of the print wrapper */
+  #root > * {
+    display: none !important;
+  }
+
+  /* Show only the wrapper container */
+  [data-print-receipt] {
+    display: block !important;
+  }
+
+  /* Hide all internal components of the print wrapper by default */
+  [data-print-receipt] * {
+    display: none !important;
+  }
+
+  /* Force display the receipt target and its internal children */
+  [data-print-receipt] [data-print-target],
+  [data-print-receipt] [data-print-target] * {
+    display: block !important;
+  }
+  
+  [data-print-receipt] [data-print-target] {
+    display: flex !important;
+    flex-direction: column !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 0 !important;
+    transform: translateX(-50%) !important;
+    width: 360px !important;
+    border: 2px dashed #a0a0a0 !important;
+    background: white !important;
+    color: black !important;
+    padding: 20px !important;
     box-shadow: none !important;
-    z-index: 99999 !important;
+    overflow: visible !important;
+  }
+
+  /* Adjust header text spacing for print */
+  [data-print-receipt] [data-print-target] .text-center {
+    margin-bottom: 12px;
   }
 
   @page {
-    margin: 10mm;
-    size: A5 portrait;
+    margin: 15mm 10mm;
+    size: portrait;
   }
 }
 

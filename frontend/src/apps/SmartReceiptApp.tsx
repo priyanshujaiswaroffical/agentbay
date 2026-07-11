@@ -77,6 +77,7 @@ export const SmartReceiptApp: React.FC<SmartReceiptAppProps> = ({ selectedTransa
       {/* Main receipt body: Dot matrix styling */}
       <div className="flex-1 p-4 overflow-y-auto flex justify-center bg-[#5c5c5c]">
         <div 
+          data-print-target
           className="w-full max-w-[360px] bg-[#fdfdfd] border-2 border-dashed border-gray-400 p-6 flex flex-col gap-4 text-black shadow-lg font-mono relative overflow-hidden"
           style={{
             boxShadow: '0 10px 20px rgba(0,0,0,0.5)',
