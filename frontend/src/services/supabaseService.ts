@@ -20,6 +20,18 @@ function simpleHash(str: string): string {
 // ── AUTHENTICATION ─────────────────────────────────────────────────
 
 export async function supabaseSignUp(name: string, role: UserRole, avatar: string, pw: string): Promise<UserProfile> {
+  // Check if a profile with the same name (case-insensitive) already exists
+  const { data: existingProfile, error: checkError } = await supabase
+    .from("ab_profiles")
+    .select("name")
+    .ilike("name", name)
+    .maybeSingle();
+
+  if (checkError) throw new Error(checkError.message);
+  if (existingProfile) {
+    throw new Error(`Username "${name}" is already taken.`);
+  }
+
   const email = `${name.toLowerCase().replace(/\s+/g, "")}@agentbay.com`;
   
   // Create user in Auth
