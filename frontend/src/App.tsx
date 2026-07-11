@@ -119,11 +119,19 @@ export const App: React.FC = () => {
   // Agent prompt linking
   const [shoppingAgentPrompt, setShoppingAgentPrompt] = useState('');
 
-  // ── Sync with Supabase ──
   const syncData = useCallback(async (user: UserProfile) => {
     try {
-      const dbProds = await supabaseGetProducts();
-      if (dbProds.length > 0) setProducts(dbProds);
+      let dbProds = await supabaseGetProducts();
+      
+      // If Supabase is empty, seed mock products so they get proper UUIDs
+      if (dbProds.length === 0) {
+        for (const p of mockProducts) {
+          try { await supabaseAddProduct(p, user.id); } catch {}
+        }
+        dbProds = await supabaseGetProducts();
+      }
+      
+      setProducts(dbProds);
       
       const dbTx = await supabaseGetTransactions(user.id, user.role);
       setTransactions(dbTx);
