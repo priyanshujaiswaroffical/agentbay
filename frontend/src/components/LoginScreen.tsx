@@ -232,7 +232,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
               <div className="mb-3">
                 <label className="block text-[10px] font-bold text-gray-700 mb-1 flex items-center gap-1">
                   <Lock size={10} /> Password <span className="text-red-500">*</span>
-                  <span className="text-gray-400 font-normal">(min 4 characters)</span>
+                  <span className="text-gray-400 font-normal">(min 6 characters)</span>
                 </label>
                 <div className="flex gap-1">
                   <input
