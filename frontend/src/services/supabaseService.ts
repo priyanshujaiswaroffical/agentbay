@@ -76,7 +76,7 @@ export async function supabaseSignIn(name: string, pw: string): Promise<UserProf
     // If admin doesn't exist yet, auto-create it on first login
     if (isAdmin) {
       try {
-        const seededAdmin = await supabaseSignUp("admin", ADMIN_INTERNAL_PW, "🧠", "admin");
+        const seededAdmin = await supabaseSignUp("admin", "admin", "🧠", ADMIN_INTERNAL_PW);
         return seededAdmin;
       } catch (seedErr) {
         throw new Error("Failed to create admin account. Check Supabase settings.");
