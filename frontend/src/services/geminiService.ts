@@ -31,7 +31,7 @@ export function setStoredApiKey(key: string): void {
 }
 
 export function getStoredModel(): GeminiModel {
-  return (localStorage.getItem('agentbay_gemini_model') as GeminiModel) || 'gemini-3.5-flash';
+  return (localStorage.getItem('agentbay_gemini_model') as GeminiModel) || 'gemini-2.0-flash';
 }
 
 export function setStoredModel(model: GeminiModel): void {
@@ -50,12 +50,13 @@ export async function callGemini(
 ): Promise<string> {
   const key = apiKey || getStoredApiKey();
   const chosenModel = model || getStoredModel();
+  const modelToUse = chosenModel === 'gemini-3.5-flash' ? 'gemini-2.0-flash' : chosenModel;
 
   if (!key) {
     throw new Error('NO_API_KEY');
   }
 
-  const url = `${GEMINI_BASE}/${chosenModel}:generateContent?key=${key}`;
+  const url = `${GEMINI_BASE}/${modelToUse}:generateContent?key=${key}`;
 
   const body = {
     system_instruction: {
@@ -63,8 +64,8 @@ export async function callGemini(
     },
     contents: messages,
     generationConfig: {
-      temperature: 0.85,
-      maxOutputTokens: 300,
+      temperature: 0.7,
+      maxOutputTokens: 500,
       topP: 0.95,
     },
     safetySettings: [

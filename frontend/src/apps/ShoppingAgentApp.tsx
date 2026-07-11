@@ -17,7 +17,7 @@ interface ShoppingAgentAppProps {
     currentPrice: number,
     typing: 'idle' | 'buyer_typing' | 'seller_typing'
   ) => void;
-  onFinishNegotiation: (tx: Transaction) => void;
+  onFinishNegotiation: (tx: Transaction | null) => void;
   onShowNotification: (title: string, message: string, type: 'info' | 'warning' | 'success') => void;
   onOpenApp: (appId: any) => void;
   initialPrompt: string;
@@ -174,6 +174,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
     setRunState('idle');
     setProgress(0);
     addLog('Run aborted by user.', 'warn');
+    onFinishNegotiation(null);
   };
 
   const handleExportLog = () => {
@@ -227,6 +228,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
       setRunState('denied');
       setProgress(0);
       onShowNotification('Trust Violation', `Seller trust score too low (${product.sellerTrust}%).`, 'warning');
+      onFinishNegotiation(null);
       return;
     }
 
@@ -339,6 +341,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
         setRunState('denied');
         setProgress(0);
         onShowNotification('Negotiation Failed', 'Could not reach a deal within budget.', 'warning');
+        onFinishNegotiation(null);
         return;
       }
 
@@ -388,6 +391,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
         setRunState('denied');
         setProgress(0);
         onShowNotification('Negotiation Ended', 'Seller walked away: offer below minimum floor price.', 'warning');
+        onFinishNegotiation(null);
         return;
       }
 
@@ -402,6 +406,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
           setRunState('denied');
           setProgress(0);
           onShowNotification('Budget Violation', 'Negotiation failed: final price exceeded your budget limit.', 'warning');
+          onFinishNegotiation(null);
           return;
         }
         
@@ -429,6 +434,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
         setRunState('denied');
         setProgress(0);
         onShowNotification('Budget Limit Reached', 'Negotiation failed: budget ceiling exceeded.', 'warning');
+        onFinishNegotiation(null);
         return;
       }
 
@@ -462,6 +468,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
         setRunState('denied');
         setProgress(0);
         onShowNotification('Negotiation Failed', 'Budget limit reached before convergence.', 'warning');
+        onFinishNegotiation(null);
         return;
       }
     }
@@ -524,6 +531,7 @@ export const ShoppingAgentApp: React.FC<ShoppingAgentAppProps> = ({
     setProgress(0);
     addLog('User denied purchase. Transaction cancelled.', 'warn');
     onShowNotification('Purchase Denied', 'You cancelled the transaction.', 'warning');
+    onFinishNegotiation(null);
   };
 
   const isRunning = ['searching', 'comparing', 'reviewing', 'negotiating_ai', 'verifying'].includes(runState);

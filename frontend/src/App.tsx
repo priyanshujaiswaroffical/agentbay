@@ -223,25 +223,31 @@ export const App: React.FC = () => {
     setTypingState(typing);
   }, []);
 
-  const handleFinishNegotiation = useCallback(async (tx: Transaction) => {
-    setSelectedReceipt(tx);
+  const handleFinishNegotiation = useCallback(async (tx: Transaction | null) => {
+    if (tx) {
+      setSelectedReceipt(tx);
+    }
     setIsNegotiating(false);
     setTypingState('idle');
     
-    // Play sound based on whether deal was made (savings > 0 means success)
-    if (tx.savings >= 0 && tx.finalPrice > 0) {
-      playSuccessSound();
+    if (tx) {
+      // Play sound based on whether deal was made (savings > 0 means success)
+      if (tx.savings >= 0 && tx.finalPrice > 0) {
+        playSuccessSound();
+      } else {
+        playErrorSound();
+      }
+
+      if (currentUser) {
+        try {
+          await supabaseAddTransaction(tx, currentUser.id);
+          syncData(currentUser);
+        } catch (e: any) {
+          triggerNotification('System Ledger', `Transaction backup failed: ${e.message}`, 'warning');
+        }
+      }
     } else {
       playErrorSound();
-    }
-
-    if (currentUser) {
-      try {
-        await supabaseAddTransaction(tx, currentUser.id);
-        syncData(currentUser);
-      } catch (e: any) {
-        triggerNotification('System Ledger', `Transaction backup failed: ${e.message}`, 'warning');
-      }
     }
   }, [currentUser, syncData, triggerNotification]);
 
@@ -301,15 +307,16 @@ export const App: React.FC = () => {
 
   const handleLogout = useCallback(() => {
     playLogoutSound();
-    setTimeout(async () => {
-      await supabaseSignOut();
-      setCurrentUser(null);
-      storeCurrentUser(null);
-      setWindows(DEFAULT_WINDOWS);
-      setActiveWindowId(null);
-      setChatHistory([]);
-      setIsNegotiating(false);
-    }, 600); // small delay so logout sound plays before unmount
+    // Clear UI state immediately so transition is instant
+    setCurrentUser(null);
+    storeCurrentUser(null);
+    setWindows(DEFAULT_WINDOWS);
+    setActiveWindowId(null);
+    setChatHistory([]);
+    setIsNegotiating(false);
+
+    // Call signout asynchronously in the background (no await blocking UI)
+    supabaseSignOut().catch(err => console.error("Supabase sign out error:", err));
   }, []);
 
   // ── Shared WindowFrame helpers ──
