@@ -333,26 +333,21 @@ export const SettingsApp: React.FC<SettingsAppProps> = ({
                 {categories.map(cat => (
                   <div key={cat} className="flex items-center justify-between bg-[#f6f6f0] border border-gray-200 rounded px-2 py-1.5">
                     <span className="font-semibold text-gray-800">{cat}</span>
-                    {!DEFAULT_CATEGORIES.includes(cat) && (
-                      <button
-                        onClick={async () => {
-                          try {
-                            await supabaseDeleteCategory(cat);
-                            onShowNotification('Categories', `Removed category: ${cat}`, 'info');
-                            loadDBCategories();
-                          } catch (e: any) {
-                            onShowNotification('Categories', `Delete failed: ${e.message}`, 'warning');
-                          }
-                        }}
-                        className="text-red-500 hover:text-red-700"
-                        title="Delete category"
-                      >
-                        <X size={12} />
-                      </button>
-                    )}
-                    {DEFAULT_CATEGORIES.includes(cat) && (
-                      <span className="text-[9px] text-gray-400 italic">built-in</span>
-                    )}
+                    <button
+                      onClick={async () => {
+                        try {
+                          await supabaseDeleteCategory(cat);
+                          onShowNotification('Categories', `Removed category: ${cat}`, 'info');
+                          loadDBCategories();
+                        } catch (e: any) {
+                          onShowNotification('Categories', `Delete failed: ${e.message}`, 'warning');
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                      title="Delete category"
+                    >
+                      <X size={12} />
+                    </button>
                   </div>
                 ))}
               </div>
